@@ -85,7 +85,7 @@ export function analyzeUsername(rawUsername: string): Signal[] {
   }
 
   // Repeated character runs (aaaa, xxxx)
-  if /(.{1})\1{2,}/.test(u)) {
+  if (/(.)\1{2,}/.test(u)) {
     signals.push({
       id: 'repeats',
       label: 'حروف مكررة بشكل عشوائي',
