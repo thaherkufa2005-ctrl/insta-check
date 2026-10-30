@@ -1,5 +1,7 @@
 # InstaCheck — كاشف الحسابات الوهمية على إنستغرام
 
+🌐 **الموقع المباشر:** https://thaherkufa2005-ctrl.github.io/insta-check/
+
 أداة ويب تحلل حسابات إنستغرام وتقدّر احتمال أن يكون الحساب وهمياً (Fake Account)،
 عبر محرك تحليل إحصائي يفحص أكثر من 12 مؤشراً سلوكياً.
 
@@ -35,6 +37,11 @@ npm install
 npm run dev      # http://localhost:3000
 npm run build    # نسخة الإنتاج في dist/
 ```
+
+## النشر
+
+النشر تلقائي عبر GitHub Actions إلى GitHub Pages عند كل push على فرع main
+(انظر `.github/workflows/deploy.yml`).
 
 ## خارطة الطريق
 
