@@ -1,19 +1,528 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="InstaCheck — اكشف الحسابات الوهمية على إنستغرام عبر تحليل أكثر من 12 مؤشراً سلوكياً" />
-    <title>InstaCheck — كاشف الحسابات الوهمية على إنستغرام</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap"
-      rel="stylesheet"
-    />
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta name="description" content="InstaCheck — اكشف الحسابات الوهمية على إنستغرام عبر تحليل أكثر من 12 مؤشراً سلوكياً" />
+<title>InstaCheck — كاشف الحسابات الوهمية على إنستغرام</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;500;700;800;900&display=swap" rel="stylesheet" />
+<style>
+  :root { color-scheme: dark; }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Tajawal', ui-sans-serif, system-ui, sans-serif;
+    background: #0b0710; color: #fff; min-height: 100vh;
+    -webkit-font-smoothing: antialiased;
+  }
+  .container { max-width: 1080px; margin: 0 auto; padding: 0 24px; }
+  nav { display: flex; align-items: center; justify-content: space-between; padding: 20px 0; }
+  .logo { font-size: 20px; font-weight: 900; }
+  .logo span { color: #e879f9; }
+  .nav-cta {
+    border: 1px solid rgba(255,255,255,.15); border-radius: 12px; padding: 8px 16px;
+    color: rgba(255,255,255,.8); text-decoration: none; font-size: 14px; font-weight: 500;
+  }
+  .nav-cta:hover { background: rgba(255,255,255,.1); }
+
+  .hero { position: relative; text-align: center; padding: 90px 0 30px; overflow: hidden; }
+  .hero::before {
+    content: ''; position: absolute; top: -160px; right: 50%; transform: translateX(50%);
+    width: 700px; height: 500px; border-radius: 50%;
+    background: rgba(192,38,211,.2); filter: blur(120px); pointer-events: none;
+  }
+  .badge {
+    display: inline-block; border: 1px solid rgba(232,121,249,.3); background: rgba(217,70,239,.1);
+    color: #f0abfc; border-radius: 999px; padding: 6px 16px; font-size: 14px; font-weight: 500;
+    position: relative;
+  }
+  .hero h1 { font-size: clamp(34px, 6vw, 60px); font-weight: 900; line-height: 1.25; margin-top: 24px; position: relative; }
+  .gradient-text {
+    background: linear-gradient(to left, #e879f9, #fb7185, #fcd34d);
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p { max-width: 580px; margin: 24px auto 0; font-size: 18px; line-height: 1.8; color: rgba(255,255,255,.6); position: relative; }
+  .btn-primary {
+    display: inline-block; margin-top: 40px; border: 0; cursor: pointer; text-decoration: none;
+    background: linear-gradient(to left, #d946ef, #f43f5e, #fbbf24); color: #fff;
+    border-radius: 16px; padding: 16px 40px; font-size: 18px; font-weight: 700; font-family: inherit;
+    box-shadow: 0 20px 40px -10px rgba(217,70,239,.35); transition: filter .2s;
+  }
+  .btn-primary:hover { filter: brightness(1.1); }
+  .btn-primary:disabled { opacity: .4; cursor: not-allowed; }
+
+  .card {
+    background: rgba(255,255,255,.03); border: 1px solid rgba(255,255,255,.1);
+    border-radius: 24px; padding: 40px; backdrop-filter: blur(8px); margin: 60px 0;
+  }
+  .card h2 { font-size: clamp(22px, 3vw, 30px); font-weight: 700; }
+  .card > p { color: rgba(255,255,255,.6); margin-top: 8px; }
+
+  .input-row { display: flex; gap: 12px; margin-top: 32px; flex-wrap: wrap; }
+  .input-row input {
+    flex: 1; min-width: 240px; direction: ltr; text-align: left; font-size: 17px; font-family: inherit;
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #fff;
+    border-radius: 16px; padding: 16px 20px; outline: none; transition: .2s;
+  }
+  .input-row input:focus { border-color: rgba(232,121,249,.6); background: rgba(255,255,255,.1); }
+  .input-row input::placeholder { color: rgba(255,255,255,.3); }
+  .input-row .btn-primary { margin-top: 0; padding: 16px 32px; }
+  .error { color: #f87171; font-size: 14px; margin-top: 12px; }
+
+  .adv-toggle {
+    margin-top: 20px; background: none; border: 0; cursor: pointer; font-family: inherit;
+    color: #f0abfc; font-size: 14px; font-weight: 500;
+  }
+  .adv-toggle:hover { color: #f5d0fe; }
+  .advanced { margin-top: 24px; border: 1px solid rgba(255,255,255,.1); background: rgba(0,0,0,.2); border-radius: 16px; padding: 24px; }
+  .advanced > p { font-size: 14px; color: rgba(255,255,255,.5); margin-bottom: 20px; }
+  .fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 16px; }
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field span { font-size: 13px; color: rgba(255,255,255,.6); }
+  .field input {
+    direction: ltr; text-align: left; font-family: inherit; font-size: 15px;
+    background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.1); color: #fff;
+    border-radius: 12px; padding: 10px 16px; outline: none;
+  }
+  .field input:focus { border-color: rgba(232,121,249,.6); }
+  .switches { display: flex; flex-wrap: wrap; gap: 24px; margin-top: 20px; }
+  .switch-row { display: flex; align-items: center; gap: 10px; font-size: 14px; color: rgba(255,255,255,.7); cursor: pointer; }
+  .switch { position: relative; width: 44px; height: 24px; border-radius: 999px; background: rgba(255,255,255,.15); border: 0; cursor: pointer; transition: .2s; }
+  .switch.on { background: #d946ef; }
+  .switch::after {
+    content: ''; position: absolute; top: 2px; right: 2px; width: 20px; height: 20px;
+    border-radius: 50%; background: #fff; transition: .2s;
+  }
+  .switch.on::after { transform: translateX(-20px); }
+
+  .result { margin-top: 40px; border-top: 1px solid rgba(255,255,255,.1); padding-top: 40px; display: none; }
+  .result.show { display: block; }
+  .result-grid { display: flex; gap: 32px; align-items: flex-start; flex-wrap: wrap; }
+  .gauge-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; margin: 0 auto; }
+  .verdict-pill { border-radius: 999px; padding: 6px 20px; font-size: 14px; font-weight: 700; }
+  .result-body { flex: 1; min-width: 280px; }
+  .result-body h3 { font-size: 20px; font-weight: 700; }
+  .result-body h3 span { color: #f0abfc; direction: ltr; unicode-bidi: embed; }
+  .result-body > p { color: rgba(255,255,255,.6); margin-top: 8px; line-height: 1.8; }
+  .signals { list-style: none; margin-top: 24px; display: flex; flex-direction: column; gap: 12px; }
+  .signal { display: flex; gap: 12px; align-items: flex-start; border-radius: 12px; border: 1px solid; padding: 12px 16px; font-size: 14px; }
+  .signal .dot { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .signal .sig-title { font-weight: 700; color: #fff; }
+  .signal .sig-detail { margin-top: 2px; opacity: .8; line-height: 1.7; }
+  .signal .pts { margin-inline-start: auto; font-family: ui-monospace, monospace; font-size: 12px; opacity: .6; flex-shrink: 0; direction: ltr; }
+  .sig-ok { border-color: rgba(16,185,129,.3); background: rgba(16,185,129,.1); color: #6ee7b7; }
+  .sig-ok .dot { background: #34d399; }
+  .sig-warn { border-color: rgba(234,179,8,.3); background: rgba(234,179,8,.1); color: #fde047; }
+  .sig-warn .dot { background: #facc15; }
+  .sig-bad { border-color: rgba(239,68,68,.3); background: rgba(239,68,68,.1); color: #fca5a5; }
+  .sig-bad .dot { background: #f87171; }
+  .disclaimer {
+    margin-top: 24px; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.05);
+    border-radius: 12px; padding: 12px 16px; font-size: 12px; line-height: 1.8; color: rgba(255,255,255,.4);
+  }
+
+  .section-title { text-align: center; font-size: clamp(24px, 4vw, 32px); font-weight: 700; margin-top: 60px; }
+  .section-sub { text-align: center; color: rgba(255,255,255,.6); margin-top: 12px; max-width: 560px; margin-inline: auto; }
+  .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 24px; margin-top: 48px; }
+  .mini-card {
+    border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.03);
+    border-radius: 24px; padding: 28px; transition: .2s;
+  }
+  .mini-card:hover { border-color: rgba(232,121,249,.4); background: rgba(255,255,255,.06); }
+  .mini-card .icon { font-size: 36px; }
+  .mini-card h3 { font-size: 18px; font-weight: 700; margin-top: 16px; }
+  .mini-card p { color: rgba(255,255,255,.55); line-height: 1.8; margin-top: 8px; }
+
+  .plans { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; margin-top: 48px; }
+  .plan { position: relative; border: 1px solid rgba(255,255,255,.1); background: rgba(255,255,255,.03); border-radius: 24px; padding: 32px; }
+  .plan.hot { border-color: rgba(232,121,249,.5); background: linear-gradient(to bottom, rgba(217,70,239,.15), transparent); box-shadow: 0 20px 50px -20px rgba(217,70,239,.25); }
+  .plan .tag {
+    position: absolute; top: -14px; right: 24px; border-radius: 999px; padding: 4px 16px;
+    font-size: 12px; font-weight: 700; color: #fff; background: linear-gradient(to left, #d946ef, #f43f5e);
+  }
+  .plan h3 { font-size: 18px; font-weight: 700; color: rgba(255,255,255,.8); }
+  .price { display: flex; align-items: baseline; gap: 8px; margin-top: 12px; }
+  .price b { font-size: 44px; font-weight: 900; direction: ltr; }
+  .price span { color: rgba(255,255,255,.5); }
+  .plan ul { list-style: none; margin-top: 24px; display: flex; flex-direction: column; gap: 12px; }
+  .plan li { display: flex; gap: 10px; align-items: center; font-size: 14px; color: rgba(255,255,255,.7); }
+  .plan li::before { content: '✓'; color: #e879f9; }
+  .plan button {
+    width: 100%; margin-top: 32px; border-radius: 16px; padding: 14px; font-family: inherit;
+    font-weight: 700; font-size: 15px; cursor: pointer; transition: .2s;
+  }
+  .plan.hot button { border: 0; color: #fff; background: linear-gradient(to left, #d946ef, #f43f5e); }
+  .plan.hot button:hover { filter: brightness(1.1); }
+  .plan:not(.hot) button { background: none; border: 1px solid rgba(255,255,255,.15); color: #fff; }
+  .plan:not(.hot) button:hover { background: rgba(255,255,255,.1); }
+
+  footer { border-top: 1px solid rgba(255,255,255,.1); text-align: center; padding: 40px 24px; margin-top: 60px; }
+  footer .logo { font-size: 18px; }
+  footer p { color: rgba(255,255,255,.4); font-size: 14px; margin-top: 8px; }
+  footer .copy { color: rgba(255,255,255,.25); font-size: 12px; margin-top: 16px; }
+</style>
+</head>
+<body>
+  <div class="container">
+    <nav>
+      <span class="logo">Insta<span>Check</span></span>
+      <a class="nav-cta" href="#analyzer">افحص حساباً</a>
+    </nav>
+
+    <section class="hero">
+      <span class="badge">كاشف الحسابات الوهمية على إنستغرام</span>
+      <h1>هل الحساب حقيقي…<br /><span class="gradient-text">أم مجرد وهم؟</span></h1>
+      <p>InstaCheck يحلل اسم المستخدم وأرقام الحساب عبر أكثر من 12 مؤشراً سلوكياً ويطيك نسبة احتمال أن الحساب وهمي — خلال ثوانٍ.</p>
+      <a class="btn-primary" href="#analyzer">جرّب الفحص الآن ↓</a>
+    </section>
+
+    <section id="analyzer" class="card">
+      <h2>افحص حساب إنستغرام</h2>
+      <p>الصق اسم المستخدم أو رابط الحساب — وفعّل التحليل المتقدم لنتيجة أدق</p>
+
+      <div class="input-row">
+        <input id="username" type="text" placeholder="@username أو https://instagram.com/username" />
+        <button id="analyzeBtn" class="btn-primary">تحليل</button>
+      </div>
+      <p id="error" class="error" style="display:none">أدخل اسم مستخدم أو رابط حساب إنستغرام أولاً</p>
+
+      <button id="advToggle" class="adv-toggle">▸ تحليل متقدم (بيانات الحساب)</button>
+
+      <div id="advanced" class="advanced" style="display:none">
+        <p>أدخل أرقام الحساب من صفحته على إنستغرام — كلما زادت البيانات كانت النتيجة أدق</p>
+        <div class="fields">
+          <label class="field"><span>عدد المتابَعين</span><input id="followers" type="number" min="0" placeholder="0" /></label>
+          <label class="field"><span>عدد المتابِعين</span><input id="following" type="number" min="0" placeholder="0" /></label>
+          <label class="field"><span>عدد المنشورات</span><input id="posts" type="number" min="0" placeholder="0" /></label>
+          <label class="field"><span>عمر الحساب (بالأشهر)</span><input id="age" type="number" min="0" placeholder="0" /></label>
+          <label class="field"><span>معدل الإعجابات بالمنشور</span><input id="avgLikes" type="number" min="0" placeholder="0" /></label>
+        </div>
+        <div class="switches">
+          <label class="switch-row"><button class="switch on" id="hasPic" role="switch" aria-checked="true"></button>صورة شخصية موجودة</label>
+          <label class="switch-row"><button class="switch on" id="hasBio" role="switch" aria-checked="true"></button>نبذة (Bio) موجودة</label>
+          <label class="switch-row"><button class="switch" id="isVerified" role="switch" aria-checked="false"></button>حساب موثّق ✓</label>
+        </div>
+      </div>
+
+      <div id="result" class="result">
+        <div class="result-grid">
+          <div class="gauge-wrap">
+            <div id="gauge" style="position:relative; display:inline-flex"></div>
+            <span id="verdictPill" class="verdict-pill"></span>
+          </div>
+          <div class="result-body">
+            <h3>نتيجة فحص <span id="analyzedName"></span></h3>
+            <p id="verdictDesc"></p>
+            <ul id="signals" class="signals"></ul>
+            <p class="disclaimer">
+              تنبيه: هاي النتيجة تقدير إحصائي مبني على مؤشرات سلوكية، وليست حكماً نهائياً.
+              النسخة المدفوعة القادمة ستسحب البيانات تلقائياً وتقدم تقريراً مفصلاً عن جودة الجمهور.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <h2 class="section-title">شلون نكشف الحسابات الوهمية؟</h2>
+    <p class="section-sub">محرك تحليل يجمع أكثر من 12 مؤشراً سلوكياً في درجة واحدة من 100</p>
+    <div class="cards">
+      <div class="mini-card">
+        <div class="icon">🔍</div>
+        <h3>تحليل اسم المستخدم</h3>
+        <p>نفحص أنماط التوليد الآلي: الأرقام الطويلة، الحروف العشوائية، والتكرارات المريبة.</p>
+      </div>
+      <div class="mini-card">
+        <div class="icon">📊</div>
+        <h3>تحليل الأرقام</h3>
+        <p>نسبة المتابَعين للمتابِعين، وتيرة النشر، وعمر الحساب — الأرقام ما تكذب.</p>
+      </div>
+      <div class="mini-card">
+        <div class="icon">💬</div>
+        <h3>معدل التفاعل</h3>
+        <p>حساب بعشرة آلاف متابع و10 إعجابات بالمنشور؟ التفاعل المنخفض يفضح الجمهور الوهمي.</p>
+      </div>
+    </div>
+
+    <h2 class="section-title">الخطط والأسعار</h2>
+    <p class="section-sub">ابدأ مجاناً — وارتقِ للنسخة الاحترافية عندما تحتاج تقارير أعمق</p>
+    <div class="plans">
+      <div class="plan">
+        <h3>مجاني</h3>
+        <div class="price"><b>0$</b><span>/ للأبد</span></div>
+        <ul>
+          <li>3 فحوصات باليوم</li>
+          <li>تحليل اسم المستخدم</li>
+          <li>التحليل المتقدم اليدوي</li>
+          <li>نتيجة الاشتباه من 100</li>
+        </ul>
+        <button onclick="document.getElementById('analyzer').scrollIntoView({behavior:'smooth'})">ابدأ مجاناً</button>
+      </div>
+      <div class="plan hot">
+        <span class="tag">الأكثر طلباً</span>
+        <h3>احترافي</h3>
+        <div class="price"><b>9$</b><span>/ شهرياً</span></div>
+        <ul>
+          <li>فحوصات غير محدودة</li>
+          <li>سحب بيانات الحساب تلقائياً</li>
+          <li>تقرير جودة الجمهور المفصّل</li>
+          <li>فحص جماعي (حتى 100 حساب)</li>
+          <li>تصدير التقارير PDF</li>
+        </ul>
+        <button>قريباً — سجّل اهتمامك</button>
+      </div>
+    </div>
+
+    <footer>
+      <p class="logo">Insta<span style="color:#e879f9">Check</span></p>
+      <p>أداة تحليل إحصائية — النتائج تقديرية وليست حكماً نهائياً. غير تابعة لشركة Meta أو Instagram.</p>
+      <p class="copy">© 2026 InstaCheck. جميع الحقوق محفوظة.</p>
+    </footer>
+  </div>
+
+<script>
+/* ---------- Scoring engine (port of src/lib/analyzer.ts) ---------- */
+
+function analyzeUsername(rawUsername) {
+  const u = rawUsername.trim().toLowerCase().replace(/^@/, '');
+  const signals = [];
+  if (!u) return signals;
+
+  const digits = (u.match(/\d/g) || []).length;
+  const digitRatio = u.length > 0 ? digits / u.length : 0;
+
+  const trailing = u.match(/\d+$/);
+  if (trailing && trailing[0].length >= 4) {
+    signals.push({ id: 'trailing-digits', label: 'أرقام طويلة بنهاية الاسم',
+      detail: `الاسم ينتهي بـ ${trailing[0].length} أرقام متتالية — نمط شائع بالحسابات المولّدة آلياً`,
+      points: 14, severity: 'bad' });
+  } else if (trailing && trailing[0].length >= 2) {
+    signals.push({ id: 'trailing-digits', label: 'أرقام بنهاية الاسم',
+      detail: 'رقمان أو أكثر بنهاية الاسم — مؤشر خفيف، شائع أيضاً بالحسابات الحقيقية',
+      points: 4, severity: 'warn' });
+  }
+
+  if (digitRatio > 0.5) {
+    signals.push({ id: 'digit-ratio', label: 'أرقام أكثر من الحروف',
+      detail: `${Math.round(digitRatio * 100)}% من الاسم أرقام — الأسماء الحقيقية نادراً تكون هيج`,
+      points: 15, severity: 'bad' });
+  } else if (digitRatio > 0.3) {
+    signals.push({ id: 'digit-ratio', label: 'نسبة أرقام مرتفعة',
+      detail: `${Math.round(digitRatio * 100)}% من الاسم أرقام`, points: 6, severity: 'warn' });
+  }
+
+  if (/(.)\1{2,}/.test(u)) {
+    signals.push({ id: 'repeats', label: 'حروف مكررة بشكل عشوائي',
+      detail: 'تكرار نفس الحرف 3 مرات أو أكثر — نمط عشوائي متكرر بالحسابات الوهمية',
+      points: 10, severity: 'warn' });
+  }
+
+  const seps = (u.match(/[._]/g) || []).length;
+  if (seps >= 3) {
+    signals.push({ id: 'separators', label: 'نقاط وشرطات كثيرة',
+      detail: `${seps} فواصل (.) و(_) بالاسم — الأسماء المولّدة آلياً تكثر منها`,
+      points: 8, severity: 'warn' });
+  }
+
+  if (u.length > 24) {
+    signals.push({ id: 'length', label: 'اسم طويل بشكل غير طبيعي',
+      detail: `${u.length} حرفاً — أطول من المعدل الطبيعي للأسماء الحقيقية`,
+      points: 8, severity: 'warn' });
+  }
+
+  const letters = u.replace(/[^a-z]/g, '');
+  if (letters.length >= 6) {
+    const vowels = (letters.match(/[aeiou]/g) || []).length;
+    if (vowels / letters.length < 0.15 && /[bcdfghjklmnpqrstvwxyz]{5,}/.test(letters)) {
+      signals.push({ id: 'gibberish', label: 'تركيب حروف عشوائي',
+        detail: 'تسلسل حروف ساكنة طويل بدون معنى — يشبه الأسماء المولّدة آلياً',
+        points: 12, severity: 'bad' });
+    }
+  }
+
+  if (signals.length === 0) {
+    signals.push({ id: 'clean-name', label: 'نمط اسم طبيعي',
+      detail: 'شكل اسم المستخدم يبدو طبيعياً وما بيه أنماط توليد آلي واضحة',
+      points: -5, severity: 'ok' });
+  }
+  return signals;
+}
+
+function analyzeStats(s) {
+  const signals = [];
+
+  if (s.isVerified) {
+    signals.push({ id: 'verified', label: 'حساب موثّق',
+      detail: 'علامة التوثيق الزرقاء — أقوى مؤشر على أن الحساب حقيقي', points: -40, severity: 'ok' });
+  }
+
+  if (s.following > 0) {
+    const ratio = s.followers / s.following;
+    if (ratio < 0.05 && s.following > 1000) {
+      signals.push({ id: 'ff-ratio', label: 'يتابع آلاف ومتابَع من القليل',
+        detail: `يتابع ${s.following.toLocaleString()} وعنده بس ${s.followers.toLocaleString()} متابع — نمط كلاسيكي للحسابات الوهمية`,
+        points: 25, severity: 'bad' });
+    } else if (ratio < 0.2 && s.following > 500) {
+      signals.push({ id: 'ff-ratio', label: 'نسبة متابَعين/متابِعين ضعيفة',
+        detail: 'عدد من يتابعهم أكبر بكثير من متابعيه — مؤشر متوسط', points: 10, severity: 'warn' });
+    }
+  }
+
+  if (s.posts === 0 && s.followers > 100) {
+    signals.push({ id: 'no-posts', label: 'صفر منشورات مع متابعين',
+      detail: 'حساب بدون أي منشور وعنده متابعين — غير منطقي لحساب حقيقي', points: 20, severity: 'bad' });
+  } else if (s.posts > 0 && s.posts < 3) {
+    signals.push({ id: 'few-posts', label: 'منشورات شبه معدومة',
+      detail: 'منشور أو منشورين فقط — نشاط ضعيف جداً', points: 8, severity: 'warn' });
+  }
+
+  if (s.accountAgeMonths < 6) {
+    signals.push({ id: 'young', label: 'حساب حديث جداً',
+      detail: `عمر الحساب ${s.accountAgeMonths} أشهر بس — الحسابات الوهمية عمرها قصير غالباً`,
+      points: 10, severity: 'warn' });
+  }
+  if (s.accountAgeMonths > 0 && s.posts / s.accountAgeMonths > 30) {
+    signals.push({ id: 'spam-rate', label: 'وتيرة نشر مفرطة',
+      detail: 'أكثر من 30 منشوراً بالشهر — نمط سبام/آلي', points: 12, severity: 'warn' });
+  }
+
+  if (!s.hasProfilePic) {
+    signals.push({ id: 'no-pic', label: 'بدون صورة شخصية',
+      detail: 'أغلب الحسابات الحقيقية تضع صورة — غيابها مؤشر سلبي', points: 12, severity: 'warn' });
+  }
+  if (!s.hasBio) {
+    signals.push({ id: 'no-bio', label: 'بدون نبذة (Bio)',
+      detail: 'النبذة الفارغة شائعة بالحسابات المولّدة بكميات', points: 6, severity: 'warn' });
+  }
+
+  if (s.followers > 500 && s.posts > 0) {
+    const engagement = (s.avgLikes / s.followers) * 100;
+    if (engagement < 0.5) {
+      signals.push({ id: 'engagement', label: 'تفاعل شبه معدوم',
+        detail: `نسبة التفاعل ${engagement.toFixed(2)}% — أقل من 0.5% يعني المتابعين غالباً وهميين أو مجمّدين`,
+        points: 20, severity: 'bad' });
+    } else if (engagement < 1.5) {
+      signals.push({ id: 'engagement', label: 'تفاعل ضعيف',
+        detail: `نسبة التفاعل ${engagement.toFixed(2)}% — أقل من الطبيعي (1.5%–3%)`,
+        points: 8, severity: 'warn' });
+    } else {
+      signals.push({ id: 'engagement', label: 'تفاعل صحي',
+        detail: `نسبة التفاعل ${engagement.toFixed(2)}% — ضمن المعدل الطبيعي، مؤشر إيجابي`,
+        points: -10, severity: 'ok' });
+    }
+  }
+  return signals;
+}
+
+function computeResult(username, stats) {
+  const signals = [...analyzeUsername(username), ...(stats ? analyzeStats(stats) : [])];
+  const raw = signals.reduce((sum, s) => sum + s.points, 15);
+  const score = Math.max(0, Math.min(100, Math.round(raw)));
+
+  const verdicts = {
+    green: { label: 'غالباً حقيقي', description: 'المؤشرات المتوفرة تبدو طبيعية. لا يوجد نمط واضح لحساب وهمي.' },
+    yellow: { label: 'مشكوك فيه', description: 'توجد مؤشرات سلبية خفيفة. يُنصح بالتدقيق اليدوي قبل التعامل مع الحساب.' },
+    orange: { label: 'وهمي محتمل', description: 'عدة مؤشرات قوية تشير إلى حساب وهمي أو آلي. تعامل معه بحذر شديد.' },
+    red: { label: 'وهمي شبه مؤكد', description: 'المؤشرات مجتمعة تشير بقوة إلى حساب وهمي أو مولّد آلياً.' },
+  };
+  const tone = score <= 25 ? 'green' : score <= 50 ? 'yellow' : score <= 75 ? 'orange' : 'red';
+  signals.sort((a, b) => b.points - a.points);
+  return { score, verdict: { ...verdicts[tone], tone }, signals };
+}
+
+/* ---------- UI wiring ---------- */
+
+const toneColors = { green: '#22c55e', yellow: '#eab308', orange: '#f97316', red: '#ef4444' };
+const pillStyles = {
+  green: 'background:rgba(16,185,129,.15);color:#6ee7b7',
+  yellow: 'background:rgba(234,179,8,.15);color:#fde047',
+  orange: 'background:rgba(249,115,22,.15);color:#fdba74',
+  red: 'background:rgba(239,68,68,.15);color:#fca5a5',
+};
+
+function extractUsername(input) {
+  const v = input.trim();
+  const m = v.match(/instagram\.com\/([A-Za-z0-9._]+)/i);
+  if (m) return m[1];
+  return v.replace(/^@/, '');
+}
+
+function renderGauge(score, tone) {
+  const size = 220, stroke = 18, r = (size - stroke) / 2;
+  const c = 2 * Math.PI * r;
+  const offset = c - (score / 100) * c;
+  const color = toneColors[tone];
+  return `<svg width="${size}" height="${size}" style="transform:rotate(-90deg)">
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="rgba(255,255,255,.08)" stroke-width="${stroke}"/>
+    <circle cx="${size/2}" cy="${size/2}" r="${r}" fill="none" stroke="${color}" stroke-width="${stroke}"
+      stroke-linecap="round" stroke-dasharray="${c}" stroke-dashoffset="${offset}"
+      style="transition:stroke-dashoffset 1s ease-out"/>
+  </svg>
+  <div style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+    <span style="font-size:60px;font-weight:900;color:${color}">${score}</span>
+    <span style="margin-top:4px;font-size:14px;color:rgba(255,255,255,.5)">من 100</span>
+  </div>`;
+}
+
+const $ = (id) => document.getElementById(id);
+const switchState = { hasPic: true, hasBio: true, isVerified: false };
+
+['hasPic', 'hasBio', 'isVerified'].forEach((id) => {
+  $(id).addEventListener('click', (e) => {
+    e.preventDefault();
+    switchState[id] = !switchState[id];
+    $(id).classList.toggle('on', switchState[id]);
+    $(id).setAttribute('aria-checked', String(switchState[id]));
+  });
+});
+
+$('advToggle').addEventListener('click', () => {
+  const adv = $('advanced');
+  const open = adv.style.display !== 'none';
+  adv.style.display = open ? 'none' : 'block';
+  $('advToggle').textContent = open ? '▸ تحليل متقدم (بيانات الحساب)' : '▾ إخفاء التحليل المتقدم';
+});
+
+function handleAnalyze() {
+  const username = extractUsername($('username').value);
+  if (!username) { $('error').style.display = 'block'; return; }
+  $('error').style.display = 'none';
+
+  let stats;
+  if ($('advanced').style.display !== 'none') {
+    stats = {
+      followers: Number($('followers').value) || 0,
+      following: Number($('following').value) || 0,
+      posts: Number($('posts').value) || 0,
+      accountAgeMonths: Number($('age').value) || 0,
+      avgLikes: Number($('avgLikes').value) || 0,
+      hasProfilePic: switchState.hasPic,
+      hasBio: switchState.hasBio,
+      isVerified: switchState.isVerified,
+    };
+  }
+
+  const result = computeResult(username, stats);
+  $('gauge').innerHTML = renderGauge(result.score, result.verdict.tone);
+  $('verdictPill').textContent = result.verdict.label;
+  $('verdictPill').style.cssText = pillStyles[result.verdict.tone];
+  $('analyzedName').textContent = '@' + username;
+  $('verdictDesc').textContent = result.verdict.description;
+  $('signals').innerHTML = result.signals.map((s) => `
+    <li class="signal sig-${s.severity}">
+      <span class="dot"></span>
+      <div>
+        <div class="sig-title">${s.label}</div>
+        <div class="sig-detail">${s.detail}</div>
+      </div>
+      <span class="pts">${s.points > 0 ? '+' + s.points : s.points}</span>
+    </li>`).join('');
+  $('result').classList.add('show');
+  $('result').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+$('analyzeBtn').addEventListener('click', handleAnalyze);
+$('username').addEventListener('keydown', (e) => { if (e.key === 'Enter') handleAnalyze(); });
+</script>
+</body>
 </html>
